@@ -1,40 +1,33 @@
-import { test } from 'qunit';
-import moduleForAcceptance from 'ember-super-rentals/tests/helpers/module-for-acceptance';
+import { moduleForComponent, test } from 'ember-qunit';
+import hbs from 'htmlbars-inline-precompile';
+import Ember from 'ember';
 
-moduleForAcceptance('Acceptance | list rentals');
-
-test('should show rentals as the home page', function (assert) {
-  visit('/');
- andThen(function() {
-   assert.equal(currentURL(), '/rentals', 'should redirect automatically');
- });
+let rental = Ember.Object.create({
+  image: 'fake.png',
+  title: 'test-title',
+  owner: 'test-owner',
+  propertyType: 'test-type',
+  city: 'test-city',
+  bedrooms: 3
 });
 
-test('should link to information about the company.', function (assert) {
-  visit('/');
- click('a:contains("About")');
- andThen(function() {
-   assert.equal(currentURL(), '/about', 'should navigate to about');
- });
+moduleForComponent('rental-listing', 'Integration | Component | rental listing', {
+  integration: true
 });
 
-test('should link to contact information.', function (assert) {
-  visit('/');
-  click('a:contains("Contact")');
-  andThen(function() {
-    assert.equal(currentURL(), '/contact', 'should navigate to contact');
-  });
+test('should display rental details', function(assert) {
+  this.set('rentalObj', rental);
+  this.render(hbs`{{rental-listing rental=rentalObj}}`);
+  assert.equal(this.$('.listing h3').text(), 'test-title', 'Title: test-title');
+  assert.equal(this.$('.listing .owner').text().trim(), 'Owner: test-owner', 'Owner: test-owner')
 });
 
-test('should list available rentals.', function (assert) {
-  visit('/');
-  andThen(function() {
-    assert.equal(find('.listing').length, 3, 'should see 3 listings');
-  });
-});
-
-test('should filter the list of rentals by city.', function (assert) {
-});
-
-test('should show details for a selected rental', function (assert) {
+test('should toggle wide class on click', function(assert) {
+  this.set('rentalObj', rental);
+  this.render(hbs`{{rental-listing rental=rentalObj}}`);
+  assert.equal(this.$('.image.wide').length, 0, 'initially rendered small');
+  Ember.run(() => document.querySelector('.image').click());
+  assert.equal(this.$('.image.wide').length, 1, 'rendered wide after click');
+  Ember.run(() => document.querySelector('.image').click());
+  assert.equal(this.$('.image.wide').length, 0, 'rendered small after second click');
 });
